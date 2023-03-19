@@ -1,7 +1,7 @@
 fx_version 'cerulean'
 game 'gta5'
 
-author 'QuantumMalice#5694'
+author 'Griefa#0001 & QuantumMalice#5694'
 description 'https://github.com/QuantumMalice/qb-platescan'
 version '1.0.0'
 
