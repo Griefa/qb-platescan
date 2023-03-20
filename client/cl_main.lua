@@ -65,58 +65,45 @@ RegisterNetEvent('QBCore:Client:OnJobUpdate', function()
 end)
 
 RegisterNetEvent("qb-platescan:client:AddStolenPlate", function(veh, plate)
-	if PlayerJob.name ~= "police" then
-		if math.random(1, 100) < 75 then
-			local vehicle = vehicleData(veh)
-			local vData = {
-				veh = veh,
-				plate = plate,
-				name = vehicle.name,
-				class = vehicle.class,
-			}
-			if Config.Debug then print("Plate marked as stolen") end
-			TriggerServerEvent("qb-platescan:server:AddStolenPlate", vData)
-		else
-			if Config.Debug then print("Stolen status ignored") end
-		end
-	end
+    local vehicle = vehicleData(veh)
+    local vData = {
+        veh = veh,
+        plate = plate,
+        name = vehicle.name,
+        class = vehicle.class,
+    }
+    if Config.Debug then print("Plate marked as stolen") end
+    TriggerServerEvent("qb-platescan:server:AddStolenPlate", vData)
 end)
 
-
-
 RegisterNetEvent("qb-platescan:client:ScanPlate", function(vData, locked)
-	local pData, scanStatus, plateStatus
-	local flagReason = {}
-	if Config.Debug then print(json.encode(vData)) end
-	if vData.warrant or vData.stolen or vData.bolo then
-		scanStatus = "bad"
-		plateStatus = Lang:t('info.status.flagged')
-		if vData.warrant then table.insert(flagReason, Lang:t('info.status.warrant')) end
-		if vData.stolen then table.insert(flagReason, Lang:t('info.status.stolen')) end
-		if vData.bolo then table.insert(flagReason, Lang:t('info.status.bolo')) end
-		if Config.LockOnFlag and not locked then
-			TriggerEvent("wk:togglePlateLock", "front", true, true)
-		end
-	else
-		scanStatus = "good"
-		plateStatus = Lang:t('info.status.negative')
-	end
-	PlaySound(-1, Config.GTAVSounds[scanStatus].name, Config.GTAVSounds[scanStatus].ref, false, 0, false)
-	pData = {
-		length = Config.NotifDuration,
-		netId = vData.id,
-		info = ('[%s]'):format(vData.plate),
-		info2 = vData.owner,
-		info3 = vData.name..", "..vData.class,
-		plateStatus = plateStatus,
-		flagReason = flagReason,
-	}
-	SendNUIMessage({
-		action = 'display',
-		info = pData,
-		type = scanStatus,
-		length = pData.length
-	})
+    local pData, scanStatus, plateStatus
+    local flagReason = {}
+    if Config.Debug then print(json.encode(vData)) end
+    if vData.warrant or vData.stolen or vData.bolo then
+        scanStatus = "bad"
+        plateStatus = Lang:t('info.status.flagged')
+        if vData.warrant then table.insert(flagReason, Lang:t('info.status.warrant')) end
+        if vData.stolen then table.insert(flagReason, Lang:t('info.status.stolen')) end
+        if vData.bolo then table.insert(flagReason, Lang:t('info.status.bolo')) end
+        if Config.LockOnFlag and not locked then
+            TriggerEvent("wk:togglePlateLock", "front", true, true)
+        end
+    else
+        scanStatus = "good"
+        plateStatus = Lang:t('info.status.negative')
+    end
+    pData = {
+        length = Config.NotifDuration,
+        netId = vData.id,
+        info = ('[%s]'):format(vData.plate),
+        info2 = vData.owner,
+        info3 = vData.name..", "..vData.class,
+        plateStatus = plateStatus,
+        flagReason = flagReason,
+    }
+
+    exports['ps-dispatch']:ScanPlate(pData, scanStatus)
 end)
 
 RegisterCommand('+platescan', function()
