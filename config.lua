@@ -7,6 +7,14 @@ Config.GKSPhone = false      -- Set to true if using gks phone, false for qb-pho
 Config.LockOnFlag = false    -- Set to true to lock front plate reader on flagged status
 Config.NotifDuration = 6000  -- Time until scan notification disappears (default = 6sec)
 
+Config.AllowedVehicles = {
+    [1] = {model = "nkbuffalos", label = 'Bravado Buffalo S'},
+    [2] = {model = 'nkscout', label = 'Vapid Scout'},
+    [3] = {model = 'nkcoquette', label = 'Invetero Coquette'},
+    [4] = {model = 'nkcruiser', label = 'Vapid Stainer'},
+    [5] = {model = 'nktorrence', label = 'Vapid Torrence'}
+}
+
 Config.GTAVSounds = {        -- Frontend sounds from GTAV (https://wiki.gtanet.work/index.php?title=FrontEndSoundlist)
     good = {
         name = "5_Second_Timer",

@@ -106,6 +106,24 @@ RegisterNetEvent("qb-platescan:client:ScanPlate", function(vData, locked)
     exports['ps-dispatch']:ScanPlate(pData, scanStatus)
 end)
 
+local function whitelistedVehicle()
+    local ped = PlayerPedId()
+    local veh = GetEntityModel(GetVehiclePedIsIn(ped))
+    local retval = false
+
+    for i = 1, #Config.AllowedVehicles, 1 do
+        if veh == GetHashKey(Config.AllowedVehicles[i].model) then
+            retval = true
+        end
+    end
+
+    if veh == GetHashKey("dynasty") then
+        retval = true
+    end
+
+    return retval
+end
+
 RegisterCommand('+platescan', function()
 	if PlayerJob.name ~= "police" then return end
 	if not IsPedInAnyPoliceVehicle(PlayerPedId()) then return end
