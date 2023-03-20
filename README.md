@@ -95,6 +95,8 @@ local function ScanPlate(vehdata, scanStatus)
         })
     end
 end
+
+exports('ScanPlate', ScanPlate)
 ```
 
 - **Add this to your **ps-dispatch/server/sv_dispatchcodes.lua***
