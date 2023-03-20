@@ -13,6 +13,7 @@ This resource also includes a vehicle target option (boot and number plate vehic
 * [ox_target](https://github.com/overextended/ox_target)
 * [wk_wars2x](https://github.com/WolfKnight98/wk_wars2x)
 * [ps-mdt](https://github.com/Project-Sloth/ps-mdt)
+* [ps-dispatch](https://github.com/Project-Sloth/ps-dispatch)
 
 # Installation
 *Make sure this script starts after qb-phone & wk_wars2x*
@@ -20,7 +21,8 @@ This resource also includes a vehicle target option (boot and number plate vehic
 2. Drag into resources folder
 3. Replace `cl_plate_reader.lua` in wk_wars2x
 4. If using qb-phone, add export to disable scanning spam
-5. Add event to vehicle keys script *(Optional)*
+5. Add ps-dispatch alerts
+6. Add event to vehicle keys script *(Optional)*
 
 ## Add phone export:
 
@@ -30,6 +32,76 @@ local function IsPhoneOpen()
     return PhoneData.isOpen
 end exports("IsPhoneOpen", IsPhoneOpen)
 ```
+
+## Add Dispatch compatability
+
+- **Add this snippet into your *ps-dispatch/client/cl_extraevents.lua***
+
+```lua
+local function ScanPlate(vehdata, scanStatus)
+
+    local currentPos = GetEntityCoords(PlayerPedId())
+    local locationInfo = getStreetandZone(currentPos)
+    local heading = getCardinalDirectionFromHeading()
+
+    local status = nil
+
+    if vehdata.flagReason[1] ~= nil and vehdata.flagReason[2] ~= nil and vehdata.flagReason[3] ~= nil then
+        status = 'Flags: '..vehdata.flagReason[1]..', '..vehdata.flagReason[2]..' '..vehdata.flagReason[3]
+    elseif vehdata.flagReason[1] ~= nil and vehdata.flagReason[2] ~= nil then
+        status = 'Flags: '..vehdata.flagReason[1]..', '..vehdata.flagReason[2]
+    elseif vehdata.flagReason[1] then
+        status = 'Flags: '..vehdata.flagReason[1]
+    else
+        status = 'Flags: NONE'
+    end
+
+
+    if vehdata.plateStatus == 'FLAGGED' then
+        TriggerServerEvent("dispatch:server:notify", {
+            dispatchcodename = "platescan", -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+            dispatchCode = 'Dispatch',
+            firstStreet = locationInfo,
+            model = vehdata.info3,
+            plate = vehdata.info,
+            priority = 1,
+            firstColor = status,
+            heading = 'Owner: '..vehdata.info2,
+            origin = {
+                x = currentPos.x,
+                y = currentPos.y,
+                z = currentPos.z
+            },
+            dispatchMessage = 'Plate Information',
+            job = { "police" }
+        })
+    else
+        TriggerServerEvent("dispatch:server:notify", {
+            dispatchcodename = "platescan", -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+            dispatchCode = 'Dispatch',
+            firstStreet = locationInfo,
+            model = vehdata.info3,
+            plate = vehdata.info,
+            priority = 0,
+            firstColor = status,
+            heading = 'Owner: '..vehdata.info2,
+            origin = {
+                x = currentPos.x,
+                y = currentPos.y,
+                z = currentPos.z
+            },
+            dispatchMessage = 'Plate Information',
+            job = { "police" }
+        })
+    end
+end
+```
+
+- **Add this to your **ps-dispatch/server/sv_dispatchcodes.lua***
+
+```lua
+ ["platescan"] =  {displayCode = '10-11', description = "Plate Information", radius = 10.0, recipientList = {'police'}, blipSprite = 66, blipColour = 37, blipScale = 0.6, blipLength = 1, sound = "Lose_1st", sound2 = "GTAO_FM_Events_Soundset", offset = "false", blipflash = "false"},
+ ```
 
 ## Add vehicle keys event: *Optional*
 
