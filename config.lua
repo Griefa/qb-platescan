@@ -6,6 +6,7 @@ Config.GKSPhone = false      -- Set to true if using gks phone, false for qb-pho
 
 Config.LockOnFlag = false    -- Set to true to lock front plate reader on flagged status
 Config.NotifDuration = 6000  -- Time until scan notification disappears (default = 6sec)
+Config.OxTarget = true      -- Set True if using ox-target, false will use qb-target
 
 Config.AllowedVehicles = {
     [1] = {model = "nkbuffalos", label = 'Bravado Buffalo S'},

@@ -155,40 +155,68 @@ end)
 
 RegisterKeyMapping('+platescan', 'Scan Plate (Police)', 'mouse_button', 'MOUSE_LEFT')
 
+RegisterNetEvent('qb-platescan:client:qbTargetPlate', function(entity)
+	local PlayerData = QBCore.Functions.GetPlayerData()
+	local plate = QBCore.Functions.GetPlate(entity)
+	local vehicle = vehicleData(entity)
+	vData = {
+		locked = GetVehicleDoorLockStatus(entity),
+		veh = entity,
+		plate = QBCore.Functions.GetPlate(entity),
+		name = vehicle.name,
+		class = vehicle.class,
+	}
+	TriggerServerEvent("qb-platescan:server:ScanPlate", vData)
+end)
 
-RegisterNetEvent('qb-platescan:client:targetPlate', function(vData)
+RegisterNetEvent('qb-platescan:client:oxTargetPlate', function(vData)
 	local PlayerData = QBCore.Functions.GetPlayerData()
 	local plate = QBCore.Functions.GetPlate(vData.entity)
 	local vehicle = vehicleData(vData.entity)
-	print('something')
 	vData = {
 		locked = GetVehicleDoorLockStatus(vData.entity),
 		veh = vData.entity,
 		plate = QBCore.Functions.GetPlate(vData.entity),
-		name = vehicle .name,
+		name = vehicle.name,
 		class = vehicle.class,
 	}
 	TriggerServerEvent("qb-platescan:server:ScanPlate", vData)
-	
 end)
 
 CreateThread(function()
-	
-	local options = {
-		{
-		name = 'Read Plate',
-		icon = 'fa-solid fa-car',
-		label = 'Scan Plate',
-		bones = {'numberplate', 'exhaust'},
-		groups = 'police',
-		distance = 5.0,
-		onSelect = function(data)
-			TriggerEvent('qb-platescan:client:targetPlate', data)
-		end,
-		}
-	}
-
-	exports.ox_target:addGlobalVehicle(options)
-
-
+    if Config.OxTarget then
+	    local options = {
+	    	{
+	    	name = 'Read Plate',
+	    	icon = 'fa-solid fa-car',
+	    	label = 'Scan Plate',
+	    	bones = {'numberplate', 'exhaust'},
+	    	groups = 'police',
+	    	distance = 5.0,
+	    	onSelect = function(data)
+	    		TriggerEvent('qb-platescan:client:oxTargetPlate', data)
+	    	end,
+	    	}
+	    }
+	    exports.ox_target:addGlobalVehicle(options)
+    else
+        local bones = {
+            'numberplate',
+            'exhaust'
+          }
+        exports['qb-target']:AddTargetBone(bones, {
+            options = {
+              {
+                num = 1,
+                icon = 'fa-solid fa-car',
+                label = 'Scan Plate',
+                action = function(entity)
+                  TriggerEvent('qb-platescan:client:qbTargetPlate', entity)
+                end,
+                job = 'police',
+              }
+            },
+        distance = 4.0,
+        })
+    end
 end)
