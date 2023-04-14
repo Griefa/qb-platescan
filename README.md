@@ -56,44 +56,26 @@ local function ScanPlate(vehdata, scanStatus)
         status = 'Flags: NONE'
     end
 
-
-    if vehdata.plateStatus == 'FLAGGED' then
-        TriggerServerEvent("dispatch:server:notify", {
-            dispatchcodename = "platescan", -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
-            dispatchCode = 'Dispatch',
-            firstStreet = locationInfo,
-            model = vehdata.info3,
-            plate = vehdata.info,
-            priority = 1,
-            firstColor = status,
-            heading = 'Owner: '..vehdata.info2,
-            origin = {
-                x = currentPos.x,
-                y = currentPos.y,
-                z = currentPos.z
-            },
-            dispatchMessage = 'Plate Information',
-            job = { "police" }
-        })
-    else
-        TriggerServerEvent("dispatch:server:notify", {
-            dispatchcodename = "platescan", -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
-            dispatchCode = 'Dispatch',
-            firstStreet = locationInfo,
-            model = vehdata.info3,
-            plate = vehdata.info,
-            priority = 0,
-            firstColor = status,
-            heading = 'Owner: '..vehdata.info2,
-            origin = {
-                x = currentPos.x,
-                y = currentPos.y,
-                z = currentPos.z
-            },
-            dispatchMessage = 'Plate Information',
-            job = { "police" }
-        })
-    end
+    local prio = 0
+    if vehdata.plateStatus == 'FLAGGED' then prio = 1 end
+        
+    TriggerEvent("dispatch:clNotify", {
+        dispatchcodename = "platescan", -- has to match the codes in sv_dispatchcodes.lua so that it generates the right blip
+        dispatchCode = 'Dispatch',
+        firstStreet = locationInfo,
+        model = vehdata.info3,
+        plate = vehdata.info,
+        priority = prio,
+        firstColor = status,
+        heading = 'Owner: '..vehdata.info2,
+        origin = {
+            x = currentPos.x,
+            y = currentPos.y,
+            z = currentPos.z
+        },
+        dispatchMessage = 'Plate Information',
+        job = { "police" }
+    }, 55, 1)
 end
 
 exports('ScanPlate', ScanPlate)
